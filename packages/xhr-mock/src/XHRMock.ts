@@ -1,23 +1,31 @@
-import window = require('global');
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import {Mock, MockFunction, ErrorCallbackEvent} from './types';
 import createMockFunction from './createMockFunction';
 import MockXMLHttpRequest from './MockXMLHttpRequest';
 
-const RealXMLHttpRequest = window.XMLHttpRequest;
 
 export class XHRMock {
-  RealXMLHttpRequest: {new (): XMLHttpRequest} = RealXMLHttpRequest;
+  RealXMLHttpRequest: {new (): XMLHttpRequest};
+  win: any;
+  baseUrl: string;
 
-  setup(): XHRMock {
+  setup(_win: any, { baseUrl }): XHRMock {
+    this.win = _win;
+    this.baseUrl = baseUrl;
+    
+    if(!this.RealXMLHttpRequest) {
+      this.RealXMLHttpRequest = _win.XMLHttpRequest
+    }
     // @ts-ignore: https://github.com/jameslnewell/xhr-mock/issues/45
-    window.XMLHttpRequest = MockXMLHttpRequest;
+    this.win.XMLHttpRequest = MockXMLHttpRequest;
     this.reset();
     return this;
   }
 
   teardown(): XHRMock {
     this.reset();
-    window.XMLHttpRequest = RealXMLHttpRequest;
+    this.win.XMLHttpRequest = this.RealXMLHttpRequest;
     return this;
   }
 

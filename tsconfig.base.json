@@ -2,10 +2,9 @@
   "compilerOptions": {
     "lib": ["es5", "es2015", "dom"],
     "module": "commonjs",
-    "moduleResolution": "node",
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "target": "es5",
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "target": "es2015",
     "skipLibCheck": true
   },
   "exclude": ["node_modules"]

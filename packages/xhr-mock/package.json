@@ -1,6 +1,6 @@
 {
-  "name": "xhr-mock",
-  "version": "2.5.1",
+  "name": "xhr-mocks",
+  "version": "1.0.1",
   "description": "Utility for mocking XMLHttpRequest.",
   "keywords": [
     "mock",
@@ -15,7 +15,7 @@
     "superagent",
     "axios"
   ],
-  "repository": "jameslnewell/xhr-mock",
+  "repository": "",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "files": [
@@ -30,7 +30,12 @@
     "url": "^0.11.0"
   },
   "devDependencies": {
-    "@alexlur/rollup-plugin-typescript": "^1.0.4",
+    "@babel/cli": "7.23.0",
+    "@babel/core": "7.23.0",
+    "@babel/plugin-proposal-class-properties": "7.18.6",
+    "@babel/plugin-transform-runtime": "7.22.15",
+    "@babel/preset-env": "7.22.20",
+    "@babel/preset-typescript": "7.23.0",
     "@types/jest": "22.2.0",
     "@types/node": "^9.3.0",
     "axios": "^0.19.0",

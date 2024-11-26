@@ -1,4 +1,5 @@
 import {parse, format} from 'url';
+import XHRMock from './XHRMock';
 
 export interface MockURL {
   protocol?: string;
@@ -26,7 +27,11 @@ export function parseURL(url: string): MockURL {
     return urlObject;
   }
 
-  const parsedURL = parse(url, true);
+  // дополняем базовой частью чтобы был всегда полный урл
+  if(XHRMock.baseUrl && url.indexOf('http') < 0) {
+    url = XHRMock.baseUrl + url;
+  }
+  const parsedURL = parse(url.replace(':///', '://'), true);
 
   if (parsedURL.protocol) {
     urlObject.protocol = parsedURL.protocol.substr(
