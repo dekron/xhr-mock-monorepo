@@ -1,7 +1,5 @@
 import {MockURL, parseURL} from './MockURL';
 import {MockHeaders} from './MockHeaders';
-import EventTarget from './MockEventTarget';
-import MockProgressEvent from './MockProgressEvent';
 
 const FORBIDDEN_METHODS = ['CONNECT', 'TRACE', 'TRACK'];
 const UPPERCASE_METHODS = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'];
@@ -11,6 +9,7 @@ export default class MockRequest {
   private _url: MockURL = parseURL('');
   private _headers: MockHeaders = {};
   private _body: null | string = null;
+  private _responseType: XMLHttpRequestResponseType;
 
   method(): string;
   method(method: string): MockRequest;
@@ -77,6 +76,17 @@ export default class MockRequest {
       return this;
     } else {
       return this._body;
+    }
+  }
+
+  responseType(): any;
+  responseType(type: XMLHttpRequestResponseType): MockRequest;
+  responseType(type?: XMLHttpRequestResponseType): XMLHttpRequestResponseType | MockRequest {
+    if (typeof type !== 'undefined') {
+      this._responseType = type;
+      return this;
+    } else {
+      return this._responseType;
     }
   }
 }

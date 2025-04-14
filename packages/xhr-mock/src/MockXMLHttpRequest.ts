@@ -704,6 +704,8 @@ export default class MockXMLHttpRequest extends MockXMLHttpRequestEventTarget
         );
       }
 
+      this.req.responseType(this.responseType);
+
       this.req.body(body);
     }
 

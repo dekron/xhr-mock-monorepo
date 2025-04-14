@@ -3,7 +3,8 @@
 import {Mock, MockFunction, ErrorCallbackEvent} from './types';
 import createMockFunction from './createMockFunction';
 import MockXMLHttpRequest from './MockXMLHttpRequest';
-
+import MockRequest from "./MockRequest";
+import MockResponse from "./MockResponse";
 
 export class XHRMock {
   RealXMLHttpRequest: {new (): XMLHttpRequest};
@@ -13,19 +14,29 @@ export class XHRMock {
   setup(_win: any, { baseUrl }): XHRMock {
     this.win = _win;
     this.baseUrl = baseUrl;
-    
+
     if(!this.RealXMLHttpRequest) {
       this.RealXMLHttpRequest = _win.XMLHttpRequest
+      this.win.XMLHttpRequest = MockXMLHttpRequest;
+    } else {
+      if (this.win !== _win) {
+        this.win = _win;
+      }
+      if(_win.XMLHttpRequest.name === 'XMLHttpRequest') {
+        this.RealXMLHttpRequest = _win.XMLHttpRequest
+        _win.XMLHttpRequest = MockXMLHttpRequest
+      }
     }
-    // @ts-ignore: https://github.com/jameslnewell/xhr-mock/issues/45
-    this.win.XMLHttpRequest = MockXMLHttpRequest;
+
     this.reset();
     return this;
   }
 
   teardown(): XHRMock {
     this.reset();
-    this.win.XMLHttpRequest = this.RealXMLHttpRequest;
+    // if (this.win) {
+    //   this.win.XMLHttpRequest = this.RealXMLHttpRequest;
+    // }
     return this;
   }
 
@@ -103,6 +114,51 @@ export class XHRMock {
 
   delete(url: string | RegExp, mock: Mock): XHRMock {
     return this.use('DELETE', url, mock);
+  }
+
+  parseHeaders(string: String): {} {
+    const headers: {[name: string]: string} = {};
+    const lines = string.split('\r\n');
+    lines.forEach(line => {
+      const [name, value] = line.split(':', 2);
+      if (name && value) {
+        headers[name] = value.replace(/^\s*/g, '').replace(/\s*$/g, '');
+      }
+    });
+    return headers;
+  }
+
+  proxy (
+    req: MockRequest,
+    res: MockResponse
+  ): Promise<MockResponse> {
+    return new Promise((resolve, reject) => {
+      const xhr: XMLHttpRequest = new this.RealXMLHttpRequest();
+
+      // TODO: reject with the correct type of error
+      xhr.onerror = event => reject(event.error);
+
+      xhr.onloadend = () => {
+        res
+          .status(xhr.status)
+          .reason(xhr.statusText)
+          .headers(this.parseHeaders(xhr.getAllResponseHeaders()))
+          .body(xhr.response);
+        resolve(res);
+      };
+
+      xhr.open(req.method(), req.url().toString());
+
+      const headers = req.headers();
+      Object.keys(headers).forEach(name => {
+        const value = headers[name];
+        xhr.setRequestHeader(name, value);
+      });
+
+      xhr.responseType = req.responseType();
+
+      xhr.send(req.body());
+    });
   }
 }
 
