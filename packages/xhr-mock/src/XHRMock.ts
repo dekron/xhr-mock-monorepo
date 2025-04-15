@@ -152,7 +152,9 @@ export class XHRMock {
       const headers = req.headers();
       Object.keys(headers).forEach(name => {
         const value = headers[name];
-        xhr.setRequestHeader(name, value);
+        if (value) {
+          xhr.setRequestHeader(name, value);
+        }
       });
 
       xhr.responseType = req.responseType();

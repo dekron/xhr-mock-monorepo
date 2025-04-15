@@ -657,29 +657,31 @@ export default class MockXMLHttpRequest extends MockXMLHttpRequestEventTarget
       if (
         typeof Document !== 'undefined' &&
         typeof XMLDocument !== 'undefined' &&
-        body instanceof Document
+        body.constructor && body.constructor.name === 'Document'
       ) {
         // Set encoding to `UTF-8`.
         // Set mimeType to `text/html` if body is an HTML document, and to `application/xml` otherwise. Then append `;charset=UTF-8` to mimeType.
         // Set request body to body, serialized, converted to Unicode, and utf-8 encoded.
         encoding = 'UTF-8';
         mimeType =
-          body instanceof XMLDocument ? 'application/xml' : 'text/html';
+          body.constructor && body.constructor.name === 'XMLDocument' ? 'application/xml' : 'text/html';
       } else {
         // If body is a string, set encoding to `UTF-8`.
         // Set request body and mimeType to the result of extracting body.
         // https://fetch.spec.whatwg.org/#concept-bodyinit-extract
 
-        if (typeof Blob !== 'undefined' && body instanceof Blob) {
+        if (typeof Blob !== 'undefined' && body.constructor && body.constructor.name === 'Blob') {
           mimeType = body.type;
         } else if (
           typeof FormData !== 'undefined' &&
-          body instanceof FormData
+          body.constructor && body.constructor.name === 'FormData'
         ) {
-          mimeType = 'multipart/form-data; boundary=----XHRMockFormBoundary';
+          // ???
+          mimeType = '';
+          // mimeType = 'multipart/form-data; boundary=----XHRMockFormBoundary';
         } else if (
           typeof URLSearchParams !== 'undefined' &&
-          body instanceof URLSearchParams
+          body.constructor && body.constructor.name === 'URLSearchParams'
         ) {
           encoding = 'UTF-8';
           mimeType = 'application/x-www-form-urlencoded';
@@ -703,11 +705,10 @@ export default class MockXMLHttpRequest extends MockXMLHttpRequestEventTarget
           encoding ? `${mimeType}; charset=${encoding}` : mimeType
         );
       }
-
-      this.req.responseType(this.responseType);
-
       this.req.body(body);
     }
+
+    this.req.responseType(this.responseType);
 
     // if one or more event listeners are registered on the associated XMLHttpRequestUpload object, then set upload listener flag
     // Note: not really necessary since dispatching an event to no listeners doesn't hurt anybody
